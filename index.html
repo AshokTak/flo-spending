@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flo — Personal Finance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <nav id="sidebar">
+    <div class="brand">
+      <div class="brand-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
+      <span class="brand-name">Flo</span>
+    </div>
+
+    <div class="nav-section-label">Overview</div>
+    <ul class="nav-links">
+      <li class="nav-item active" data-section="dashboard" onclick="navigate('dashboard')">
+        <i data-lucide="layout-dashboard"></i><span>Dashboard</span>
+      </li>
+      <li class="nav-item" data-section="accounts" onclick="navigate('accounts')">
+        <i data-lucide="credit-card"></i><span>Accounts</span>
+      </li>
+    </ul>
+
+    <div class="nav-section-label">Money</div>
+    <ul class="nav-links">
+      <li class="nav-item" data-section="transactions" onclick="navigate('transactions')">
+        <i data-lucide="arrow-left-right"></i><span>Transactions</span>
+      </li>
+      <li class="nav-item" data-section="recurring" onclick="navigate('recurring')">
+        <i data-lucide="repeat"></i><span>Recurring</span>
+      </li>
+    </ul>
+
+    <div class="nav-section-label">Insights</div>
+    <ul class="nav-links">
+      <li class="nav-item" data-section="analytics" onclick="navigate('analytics')">
+        <i data-lucide="bar-chart-3"></i><span>Analytics</span>
+      </li>
+      <li class="nav-item" data-section="settings" onclick="navigate('settings')">
+        <i data-lucide="settings"></i><span>Settings</span>
+      </li>
+    </ul>
+
+    <div class="sidebar-bottom">
+      <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i data-lucide="sun" id="icon-light" style="display:none"></i>
+        <i data-lucide="moon" id="icon-dark"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- HAMBURGER for mobile -->
+  <button class="hamburger" id="hamburger" onclick="toggleSidebar()">
+    <i data-lucide="menu"></i>
+  </button>
+
+  <!-- MAIN CONTENT -->
+  <main id="main">
+
+    <!-- ===== DASHBOARD ===== -->
+    <section id="s-dashboard" class="section">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Dashboard</h1>
+          <p class="page-sub" id="dash-date"></p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-primary" onclick="openModal('transaction')">
+            <i data-lucide="plus"></i> Add Expense
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="kpi-grid" id="kpi-grid"></div>
+
+      <!-- Charts Row -->
+      <div class="charts-row">
+        <div class="card chart-card">
+          <div class="card-header">
+            <h3>Spending by Category</h3>
+            <span class="card-badge" id="chart-month-label"></span>
+          </div>
+          <div class="donut-wrap">
+            <canvas id="chart-category"></canvas>
+            <div class="donut-center" id="donut-center"></div>
+          </div>
+          <div class="chart-legend" id="chart-legend"></div>
+        </div>
+
+        <div class="card chart-card">
+          <div class="card-header">
+            <h3>Spending Type Split</h3>
+          </div>
+          <div style="height:200px;position:relative"><canvas id="chart-type"></canvas></div>
+          <div class="type-legend" id="type-legend"></div>
+        </div>
+      </div>
+
+      <!-- Bottom Row -->
+      <div class="bottom-row">
+        <div class="card">
+          <div class="card-header">
+            <h3>Recent Transactions</h3>
+            <button class="link-btn" onclick="navigate('transactions')">View all →</button>
+          </div>
+          <div id="dash-recent"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Upcoming Bills</h3>
+            <button class="link-btn" onclick="navigate('recurring')">View all →</button>
+          </div>
+          <div id="dash-upcoming"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ACCOUNTS ===== -->
+    <section id="s-accounts" class="section hidden">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Accounts</h1>
+          <p class="page-sub">Manage your financial accounts</p>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('account')">
+          <i data-lucide="plus"></i> Add Account
+        </button>
+      </div>
+
+      <div class="net-worth-banner" id="net-worth-banner"></div>
+
+      <div class="accounts-grid" id="accounts-grid"></div>
+    </section>
+
+    <!-- ===== TRANSACTIONS ===== -->
+    <section id="s-transactions" class="section hidden">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Transactions</h1>
+          <p class="page-sub" id="txn-count"></p>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('transaction')">
+          <i data-lucide="plus"></i> Add Expense
+        </button>
+      </div>
+
+      <!-- Filters -->
+      <div class="filter-bar">
+        <div class="search-wrap">
+          <i data-lucide="search"></i>
+          <input type="text" id="txn-search" placeholder="Search transactions…" oninput="renderTransactions()">
+        </div>
+        <select id="txn-filter-cat" onchange="renderTransactions()">
+          <option value="">All Categories</option>
+        </select>
+        <select id="txn-filter-type" onchange="renderTransactions()">
+          <option value="">All Types</option>
+          <option value="mandatory_fixed">Mandatory Fixed</option>
+          <option value="mandatory_variable">Mandatory Variable</option>
+          <option value="optional_fixed">Optional Fixed</option>
+          <option value="optional_variable">Optional Variable</option>
+        </select>
+        <select id="txn-filter-month" onchange="renderTransactions()">
+          <option value="">All Months</option>
+        </select>
+      </div>
+
+      <div id="txn-list"></div>
+    </section>
+
+    <!-- ===== RECURRING ===== -->
+    <section id="s-recurring" class="section hidden">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Recurring Bills</h1>
+          <p class="page-sub" id="rec-summary"></p>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('recurring')">
+          <i data-lucide="plus"></i> Add Recurring
+        </button>
+      </div>
+
+      <div class="recurring-layout">
+        <div class="card" style="flex:1">
+          <div class="card-header"><h3>Monthly Schedule</h3></div>
+          <div id="rec-calendar"></div>
+        </div>
+        <div style="flex:2">
+          <div id="rec-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ANALYTICS ===== -->
+    <section id="s-analytics" class="section hidden">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Analytics</h1>
+          <p class="page-sub">Spending trends & insights</p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:1.5rem">
+        <div class="card-header"><h3>6-Month Spending Trend</h3></div>
+        <canvas id="chart-trend" height="100"></canvas>
+      </div>
+
+      <div class="charts-row">
+        <div class="card chart-card">
+          <div class="card-header"><h3>Mandatory vs Optional</h3></div>
+          <canvas id="chart-mando" height="220"></canvas>
+        </div>
+        <div class="card chart-card">
+          <div class="card-header"><h3>Fixed vs Variable</h3></div>
+          <canvas id="chart-fixvar" height="220"></canvas>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:1.5rem">
+        <div class="card-header"><h3>Category Breakdown</h3></div>
+        <div id="analytics-breakdown"></div>
+      </div>
+    </section>
+
+    <!-- ===== SETTINGS ===== -->
+    <section id="s-settings" class="section hidden">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Settings</h1>
+          <p class="page-sub">Configure your finance profile</p>
+        </div>
+      </div>
+
+      <div class="settings-grid">
+        <div class="card">
+          <div class="card-header"><h3>Income & Profile</h3></div>
+          <div class="settings-form">
+            <div class="form-group">
+              <label>Monthly Gross Income</label>
+              <div class="input-prefix"><span>$</span>
+                <input type="number" id="set-income" placeholder="5000" oninput="saveSettings()">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Currency Symbol</label>
+              <select id="set-currency" onchange="saveSettings()">
+                <option value="$">USD ($)</option>
+                <option value="€">EUR (€)</option>
+                <option value="£">GBP (£)</option>
+                <option value="¥">JPY (¥)</option>
+                <option value="₹">INR (₹)</option>
+                <option value="C$">CAD (C$)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3>Data Management</h3></div>
+          <div class="settings-form">
+            <button class="btn btn-secondary" onclick="exportData()"><i data-lucide="download"></i> Export JSON</button>
+            <label class="btn btn-secondary" style="cursor:pointer">
+              <i data-lucide="upload"></i> Import JSON
+              <input type="file" accept=".json" onchange="importData(event)" style="display:none">
+            </label>
+            <button class="btn btn-danger" onclick="clearAllData()"><i data-lucide="trash-2"></i> Clear All Data</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3>About</h3></div>
+          <p style="color:var(--text-secondary);font-size:.9rem;line-height:1.7">
+            <strong style="color:var(--text)">Flo</strong> is a personal finance tracker designed to give you clarity on where your money goes.<br><br>
+            Built with Chart.js · Data stored locally in your browser.
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== MODALS ===== -->
+  <div id="overlay" class="overlay hidden" onclick="closeModalOutside(event)">
+
+    <!-- Account Modal -->
+    <div id="modal-account" class="modal hidden">
+      <div class="modal-header">
+        <h2 id="modal-account-title">Add Account</h2>
+        <button class="modal-close" onclick="closeModal()"><i data-lucide="x"></i></button>
+      </div>
+      <form id="form-account" onsubmit="submitAccount(event)">
+        <input type="hidden" id="acc-id">
+        <div class="form-group">
+          <label>Account Name</label>
+          <input type="text" id="acc-name" placeholder="e.g. Chase Sapphire" required>
+        </div>
+        <div class="form-group">
+          <label>Account Type</label>
+          <select id="acc-type" onchange="toggleCreditLimit()">
+            <option value="checking">Checking / Debit</option>
+            <option value="savings">Savings</option>
+            <option value="credit">Credit Card</option>
+            <option value="investment">Investment</option>
+            <option value="cash">Cash</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Current Balance</label>
+            <div class="input-prefix"><span>$</span>
+              <input type="number" id="acc-balance" step="0.01" placeholder="0.00" required>
+            </div>
+          </div>
+          <div class="form-group" id="credit-limit-wrap" style="display:none">
+            <label>Credit Limit</label>
+            <div class="input-prefix"><span>$</span>
+              <input type="number" id="acc-limit" step="0.01" placeholder="5000">
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Color</label>
+          <div class="color-picker" id="acc-color-picker"></div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Account</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Transaction Modal -->
+    <div id="modal-transaction" class="modal hidden">
+      <div class="modal-header">
+        <h2 id="modal-txn-title">Add Transaction</h2>
+        <button class="modal-close" onclick="closeModal()"><i data-lucide="x"></i></button>
+      </div>
+      <form id="form-transaction" onsubmit="submitTransaction(event)">
+        <input type="hidden" id="txn-id">
+        <div class="form-row">
+          <div class="form-group" style="flex:1">
+            <label>Amount</label>
+            <div class="input-prefix"><span id="txn-currency-symbol">$</span>
+              <input type="number" id="txn-amount" step="0.01" placeholder="0.00" required min="0.01">
+            </div>
+          </div>
+          <div class="form-group" style="flex:1">
+            <label>Date</label>
+            <input type="date" id="txn-date" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <input type="text" id="txn-desc" placeholder="e.g. Netflix subscription" autocomplete="off" oninput="suggestCategory(this.value)" required>
+          <div id="cat-suggestion" class="suggestion-chip hidden"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex:1">
+            <label>Primary Category</label>
+            <select id="txn-category"></select>
+          </div>
+          <div class="form-group" style="flex:1">
+            <label>Spending Type</label>
+            <select id="txn-type">
+              <option value="optional_variable">Optional Variable</option>
+              <option value="optional_fixed">Optional Fixed</option>
+              <option value="mandatory_variable">Mandatory Variable</option>
+              <option value="mandatory_fixed">Mandatory Fixed</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Account</label>
+          <select id="txn-account"></select>
+        </div>
+        <div class="form-group">
+          <label>Notes <span style="color:var(--text-muted);font-size:.8rem">(optional)</span></label>
+          <input type="text" id="txn-notes" placeholder="Any additional notes…">
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Transaction</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Recurring Modal -->
+    <div id="modal-recurring" class="modal hidden">
+      <div class="modal-header">
+        <h2 id="modal-rec-title">Add Recurring Bill</h2>
+        <button class="modal-close" onclick="closeModal()"><i data-lucide="x"></i></button>
+      </div>
+      <form id="form-recurring" onsubmit="submitRecurring(event)">
+        <input type="hidden" id="rec-id">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" id="rec-name" placeholder="e.g. Netflix, Rent, Insurance" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex:1">
+            <label>Monthly Amount</label>
+            <div class="input-prefix"><span>$</span>
+              <input type="number" id="rec-amount" step="0.01" placeholder="0.00" required min="0.01">
+            </div>
+          </div>
+          <div class="form-group" style="flex:1">
+            <label>Due Day of Month</label>
+            <input type="number" id="rec-day" min="1" max="28" placeholder="1–28" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex:1">
+            <label>Category</label>
+            <select id="rec-category"></select>
+          </div>
+          <div class="form-group" style="flex:1">
+            <label>Spending Type</label>
+            <select id="rec-type">
+              <option value="mandatory_fixed">Mandatory Fixed</option>
+              <option value="optional_fixed">Optional Fixed</option>
+              <option value="mandatory_variable">Mandatory Variable</option>
+              <option value="optional_variable">Optional Variable</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Account <span style="color:var(--text-muted);font-size:.8rem">(optional)</span></label>
+          <select id="rec-account">
+            <option value="">— None —</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Confirm Delete Modal -->
+    <div id="modal-confirm" class="modal modal-sm hidden">
+      <div class="modal-header">
+        <h2>Confirm Delete</h2>
+        <button class="modal-close" onclick="closeModal()"><i data-lucide="x"></i></button>
+      </div>
+      <p id="confirm-msg" style="color:var(--text-secondary);margin-bottom:1.5rem"></p>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-danger" id="confirm-btn">Delete</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
