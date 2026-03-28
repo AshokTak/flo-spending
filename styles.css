@@ -1020,3 +1020,175 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   .page-title { font-size: 1.5rem; }
   .accounts-grid { grid-template-columns: 1fr; }
 }
+
+/* ===== V2 ADDITIONS ===== */
+
+/* Period Toggle */
+.period-toggle {
+  display: flex;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  gap: 2px;
+}
+.period-btn {
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: var(--ff-body);
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--t);
+  white-space: nowrap;
+}
+.period-btn:hover { color: var(--text); }
+.period-btn.active { background: var(--accent); color: #000; }
+
+/* Period Label Bar */
+.period-label-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  margin-top: -0.75rem;
+}
+.period-label-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-dim);
+  border: 1px solid rgba(0,200,224,0.15);
+  padding: 0.25rem 0.7rem;
+  border-radius: 20px;
+}
+
+/* Budget Progress (Dashboard) */
+.budget-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.budget-row:last-child { border-bottom: none; }
+.budget-cat-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.budget-name { font-size: 0.85rem; color: var(--text); min-width: 110px; }
+.budget-bar-wrap { flex: 1; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.budget-bar { height: 100%; border-radius: 3px; transition: width 0.5s var(--ease); }
+.budget-amounts { display: flex; align-items: center; gap: 0.3rem; font-size: 0.8rem; }
+.budget-spent { font-family: var(--ff-mono); font-weight: 600; }
+.budget-total { color: var(--text-secondary); font-family: var(--ff-mono); }
+.budget-over-badge {
+  font-size: 0.62rem; font-weight: 700; letter-spacing: 0.05em;
+  padding: 0.1rem 0.35rem; border-radius: 4px;
+  background: var(--red-dim); color: var(--red);
+}
+
+/* Budget Settings List */
+.budget-settings-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.875rem;
+}
+.budget-settings-row:last-child { border-bottom: none; }
+
+/* Goals Section */
+.goals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+.goal-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.4rem;
+  position: relative;
+  overflow: hidden;
+  transition: all var(--t);
+}
+.goal-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--goal-color, var(--accent));
+}
+.goal-card:hover { border-color: var(--border-hover); transform: translateY(-2px); box-shadow: var(--shadow); }
+.goal-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 0.75rem; }
+.goal-name { font-family: var(--ff-display); font-size: 1rem; font-weight: 700; color: var(--text); }
+.goal-actions { display: flex; gap: 0.25rem; opacity: 0; transition: opacity var(--t); }
+.goal-card:hover .goal-actions { opacity: 1; }
+.goal-amounts { display: flex; align-items: baseline; gap: 0.25rem; margin-bottom: 0.75rem; }
+.goal-saved { font-family: var(--ff-mono); font-size: 1.5rem; font-weight: 700; color: var(--text); }
+.goal-of { color: var(--text-secondary); font-size: 0.875rem; }
+.goal-target { font-family: var(--ff-mono); font-size: 1rem; color: var(--text-secondary); }
+.goal-bar-wrap { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 0.4rem; }
+.goal-bar { height: 100%; border-radius: 4px; transition: width 0.6s var(--ease); }
+.goal-pct { font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.6rem; }
+.goal-meta { font-size: 0.78rem; color: var(--text-secondary); line-height: 1.6; }
+.goal-meta strong { color: var(--text); }
+
+/* Cash Flow Summary */
+.cf-title {
+  display: flex; align-items: center; gap: 0.35rem;
+  font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.07em; color: var(--text-secondary); margin-bottom: 0.5rem;
+}
+.cf-row {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 0.82rem; color: var(--text-secondary); padding: 0.2rem 0;
+}
+.cf-bold { font-weight: 600; color: var(--text); padding-top: 0.4rem; margin-top: 0.2rem; border-top: 1px solid var(--border); }
+.cf-val { font-family: var(--ff-mono); font-size: 0.85rem; font-weight: 600; }
+.cf-val.positive { color: var(--green); }
+.cf-val.negative { color: var(--red); }
+
+/* Frequency Badge */
+.freq-badge {
+  display: inline-block;
+  font-size: 0.65rem; font-weight: 700; letter-spacing: 0.05em;
+  padding: 0.1rem 0.4rem; border-radius: 4px;
+  background: var(--bg-elevated); color: var(--text-secondary);
+  border: 1px solid var(--border);
+  text-transform: uppercase;
+}
+
+/* Month Compare */
+.compare-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1.5rem; padding: 1rem 0;
+}
+.compare-col { text-align: center; }
+.compare-col.right { text-align: right; }
+.compare-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); margin-bottom: 0.3rem; }
+.compare-val { font-family: var(--ff-mono); font-size: 1.4rem; font-weight: 700; color: var(--text); }
+.compare-arrow {
+  display: flex; flex-direction: column; align-items: center; gap: 0.35rem;
+  font-size: 0.82rem; font-weight: 600; text-align: center; flex: 1;
+}
+.compare-arrow i { width: 24px; height: 24px; }
+
+/* Form hint */
+.form-hint { font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem; }
+
+/* Pay period btn in settings */
+@media (max-width: 900px) {
+  .period-toggle { display: none; }
+  #period-toggle { display: none; }
+}
+@media (max-width: 640px) {
+  .compare-row { flex-direction: column; gap: 0.75rem; }
+  .goals-grid { grid-template-columns: 1fr; }
+  .budget-name { min-width: 80px; font-size: .78rem; }
+}

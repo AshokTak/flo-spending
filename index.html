@@ -39,6 +39,9 @@
       <li class="nav-item" data-section="recurring" onclick="navigate('recurring')">
         <i data-lucide="repeat"></i><span>Recurring</span>
       </li>
+      <li class="nav-item" data-section="goals" onclick="navigate('goals')">
+        <i data-lucide="target"></i><span>Goals</span>
+      </li>
     </ul>
 
     <div class="nav-section-label">Insights</div>
@@ -59,12 +62,11 @@
     </div>
   </nav>
 
-  <!-- HAMBURGER for mobile -->
   <button class="hamburger" id="hamburger" onclick="toggleSidebar()">
     <i data-lucide="menu"></i>
   </button>
 
-  <!-- MAIN CONTENT -->
+  <!-- MAIN -->
   <main id="main">
 
     <!-- ===== DASHBOARD ===== -->
@@ -75,14 +77,32 @@
           <p class="page-sub" id="dash-date"></p>
         </div>
         <div class="header-actions">
+          <!-- Period Toggle -->
+          <div class="period-toggle" id="period-toggle">
+            <button class="period-btn active" data-period="current-month" onclick="setViewPeriod('current-month')">This Month</button>
+            <button class="period-btn" data-period="last-month" onclick="setViewPeriod('last-month')">Last Month</button>
+            <button class="period-btn" data-period="pay-period" onclick="setViewPeriod('pay-period')" id="pay-period-btn">Pay Period</button>
+          </div>
           <button class="btn btn-primary" onclick="openModal('transaction')">
             <i data-lucide="plus"></i> Add Expense
           </button>
         </div>
       </div>
 
+      <!-- Period label -->
+      <div id="period-label-bar" class="period-label-bar"></div>
+
       <!-- KPI Cards -->
       <div class="kpi-grid" id="kpi-grid"></div>
+
+      <!-- Budget Progress -->
+      <div class="card" style="margin-bottom:1.5rem" id="budget-overview-card">
+        <div class="card-header">
+          <h3>Budget vs Actual</h3>
+          <button class="link-btn" onclick="navigate('settings')">Manage budgets →</button>
+        </div>
+        <div id="budget-progress-list"></div>
+      </div>
 
       <!-- Charts Row -->
       <div class="charts-row">
@@ -123,6 +143,7 @@
             <button class="link-btn" onclick="navigate('recurring')">View all →</button>
           </div>
           <div id="dash-upcoming"></div>
+          <div id="cash-flow-summary" style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)"></div>
         </div>
       </div>
     </section>
@@ -138,9 +159,7 @@
           <i data-lucide="plus"></i> Add Account
         </button>
       </div>
-
       <div class="net-worth-banner" id="net-worth-banner"></div>
-
       <div class="accounts-grid" id="accounts-grid"></div>
     </section>
 
@@ -155,8 +174,6 @@
           <i data-lucide="plus"></i> Add Expense
         </button>
       </div>
-
-      <!-- Filters -->
       <div class="filter-bar">
         <div class="search-wrap">
           <i data-lucide="search"></i>
@@ -176,7 +193,6 @@
           <option value="">All Months</option>
         </select>
       </div>
-
       <div id="txn-list"></div>
     </section>
 
@@ -191,9 +207,8 @@
           <i data-lucide="plus"></i> Add Recurring
         </button>
       </div>
-
       <div class="recurring-layout">
-        <div class="card" style="flex:1">
+        <div class="card" style="flex:1;min-width:220px">
           <div class="card-header"><h3>Monthly Schedule</h3></div>
           <div id="rec-calendar"></div>
         </div>
@@ -203,18 +218,38 @@
       </div>
     </section>
 
+    <!-- ===== GOALS ===== -->
+    <section id="s-goals" class="section hidden">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Savings Goals</h1>
+          <p class="page-sub" id="goals-summary"></p>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('goal')">
+          <i data-lucide="plus"></i> Add Goal
+        </button>
+      </div>
+      <div id="goals-grid" class="goals-grid"></div>
+    </section>
+
     <!-- ===== ANALYTICS ===== -->
     <section id="s-analytics" class="section hidden">
       <div class="page-header">
         <div>
           <h1 class="page-title">Analytics</h1>
-          <p class="page-sub">Spending trends & insights</p>
+          <p class="page-sub">Spending trends &amp; insights</p>
         </div>
       </div>
 
       <div class="card" style="margin-bottom:1.5rem">
         <div class="card-header"><h3>6-Month Spending Trend</h3></div>
         <canvas id="chart-trend" height="100"></canvas>
+      </div>
+
+      <!-- Monthly comparison -->
+      <div class="card" style="margin-bottom:1.5rem">
+        <div class="card-header"><h3>This Month vs Last Month</h3></div>
+        <div id="month-compare"></div>
       </div>
 
       <div class="charts-row">
@@ -229,7 +264,7 @@
       </div>
 
       <div class="card" style="margin-top:1.5rem">
-        <div class="card-header"><h3>Category Breakdown</h3></div>
+        <div class="card-header"><h3>Category Breakdown — This Month</h3></div>
         <div id="analytics-breakdown"></div>
       </div>
     </section>
@@ -242,19 +277,33 @@
           <p class="page-sub">Configure your finance profile</p>
         </div>
       </div>
-
       <div class="settings-grid">
+
         <div class="card">
-          <div class="card-header"><h3>Income & Profile</h3></div>
+          <div class="card-header"><h3>Income &amp; Pay Schedule</h3></div>
           <div class="settings-form">
             <div class="form-group">
-              <label>Monthly Gross Income</label>
-              <div class="input-prefix"><span>$</span>
-                <input type="number" id="set-income" placeholder="5000" oninput="saveSettings()">
-              </div>
+              <label>Pay Frequency</label>
+              <select id="set-pay-freq" onchange="onPayFreqChange()">
+                <option value="monthly">Monthly</option>
+                <option value="semi-monthly">Semi-Monthly (1st &amp; 15th)</option>
+                <option value="bi-weekly">Bi-Weekly</option>
+                <option value="weekly">Weekly</option>
+              </select>
             </div>
             <div class="form-group">
-              <label>Currency Symbol</label>
+              <label id="income-label">Gross Income per Period</label>
+              <div class="input-prefix"><span id="set-currency-sym">$</span>
+                <input type="number" id="set-income" placeholder="4250" oninput="saveSettings()">
+              </div>
+              <div class="form-hint" id="income-hint"></div>
+            </div>
+            <div class="form-group" id="next-pay-wrap">
+              <label>Most Recent / Next Pay Date <span style="color:var(--text-muted);font-size:.8rem">(for bi-weekly)</span></label>
+              <input type="date" id="set-next-pay" onchange="saveSettings()">
+            </div>
+            <div class="form-group">
+              <label>Currency</label>
               <select id="set-currency" onchange="saveSettings()">
                 <option value="$">USD ($)</option>
                 <option value="€">EUR (€)</option>
@@ -265,6 +314,16 @@
               </select>
             </div>
           </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Category Budgets <span style="font-size:.75rem;font-weight:400;color:var(--text-secondary)">(monthly)</span></h3>
+            <button class="btn btn-primary" style="padding:.35rem .7rem;font-size:.8rem" onclick="openModal('budget')">
+              <i data-lucide="plus"></i> Add
+            </button>
+          </div>
+          <div id="budget-list"></div>
         </div>
 
         <div class="card">
@@ -282,7 +341,7 @@
         <div class="card">
           <div class="card-header"><h3>About</h3></div>
           <p style="color:var(--text-secondary);font-size:.9rem;line-height:1.7">
-            <strong style="color:var(--text)">Flo</strong> is a personal finance tracker designed to give you clarity on where your money goes.<br><br>
+            <strong style="color:var(--text)">Flo v2</strong> — Personal finance tracker with bi-weekly pay period support, category budgets, savings goals, and recurring bill frequency tracking.<br><br>
             Built with Chart.js · Data stored locally in your browser.
           </p>
         </div>
@@ -406,19 +465,37 @@
         <input type="hidden" id="rec-id">
         <div class="form-group">
           <label>Name</label>
-          <input type="text" id="rec-name" placeholder="e.g. Netflix, Rent, Insurance" required>
+          <input type="text" id="rec-name" placeholder="e.g. Netflix, Rent, Car Insurance" required>
         </div>
         <div class="form-row">
           <div class="form-group" style="flex:1">
-            <label>Monthly Amount</label>
+            <label>Amount per Occurrence</label>
             <div class="input-prefix"><span>$</span>
               <input type="number" id="rec-amount" step="0.01" placeholder="0.00" required min="0.01">
             </div>
           </div>
           <div class="form-group" style="flex:1">
-            <label>Due Day of Month</label>
-            <input type="number" id="rec-day" min="1" max="28" placeholder="1–28" required>
+            <label>Frequency</label>
+            <select id="rec-frequency" onchange="onRecFrequencyChange()">
+              <option value="monthly">Monthly</option>
+              <option value="bi-weekly">Bi-Weekly</option>
+              <option value="weekly">Weekly</option>
+              <option value="semi-monthly">Semi-Monthly</option>
+              <option value="quarterly">Quarterly</option>
+              <option value="annual">Annual</option>
+            </select>
           </div>
+        </div>
+        <!-- Monthly: show due day -->
+        <div class="form-group" id="rec-day-wrap">
+          <label>Due Day of Month <span style="color:var(--text-muted);font-size:.8rem">(1–31)</span></label>
+          <input type="number" id="rec-day" min="1" max="31" placeholder="1–31">
+        </div>
+        <!-- Non-monthly: show start/anchor date -->
+        <div class="form-group hidden" id="rec-date-wrap">
+          <label id="rec-date-label">Start / Anchor Date</label>
+          <input type="date" id="rec-start-date">
+          <div class="form-hint" id="rec-date-hint"></div>
         </div>
         <div class="form-row">
           <div class="form-group" style="flex:1">
@@ -437,9 +514,7 @@
         </div>
         <div class="form-group">
           <label>Account <span style="color:var(--text-muted);font-size:.8rem">(optional)</span></label>
-          <select id="rec-account">
-            <option value="">— None —</option>
-          </select>
+          <select id="rec-account"><option value="">— None —</option></select>
         </div>
         <div class="modal-actions">
           <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
@@ -448,7 +523,80 @@
       </form>
     </div>
 
-    <!-- Confirm Delete Modal -->
+    <!-- Budget Modal -->
+    <div id="modal-budget" class="modal modal-sm hidden">
+      <div class="modal-header">
+        <h2 id="modal-budget-title">Set Category Budget</h2>
+        <button class="modal-close" onclick="closeModal()"><i data-lucide="x"></i></button>
+      </div>
+      <form id="form-budget" onsubmit="submitBudget(event)">
+        <input type="hidden" id="budget-id">
+        <div class="form-group">
+          <label>Category</label>
+          <select id="budget-category"></select>
+        </div>
+        <div class="form-group">
+          <label>Monthly Budget</label>
+          <div class="input-prefix"><span>$</span>
+            <input type="number" id="budget-amount" step="0.01" placeholder="500" required min="1">
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Budget</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Goal Modal -->
+    <div id="modal-goal" class="modal modal-sm hidden">
+      <div class="modal-header">
+        <h2 id="modal-goal-title">Add Savings Goal</h2>
+        <button class="modal-close" onclick="closeModal()"><i data-lucide="x"></i></button>
+      </div>
+      <form id="form-goal" onsubmit="submitGoal(event)">
+        <input type="hidden" id="goal-id">
+        <div class="form-group">
+          <label>Goal Name</label>
+          <input type="text" id="goal-name" placeholder="e.g. Emergency Fund, Vacation" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex:1">
+            <label>Target Amount</label>
+            <div class="input-prefix"><span>$</span>
+              <input type="number" id="goal-target" step="0.01" placeholder="10000" required min="1">
+            </div>
+          </div>
+          <div class="form-group" style="flex:1">
+            <label>Saved So Far</label>
+            <div class="input-prefix"><span>$</span>
+              <input type="number" id="goal-current" step="0.01" placeholder="0" min="0">
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Target Date <span style="color:var(--text-muted);font-size:.8rem">(optional)</span></label>
+          <input type="date" id="goal-date">
+        </div>
+        <div class="form-group">
+          <label>Monthly Contribution</label>
+          <div class="input-prefix"><span>$</span>
+            <input type="number" id="goal-contribution" step="0.01" placeholder="200" min="0">
+          </div>
+          <div class="form-hint">How much you plan to save toward this goal each month</div>
+        </div>
+        <div class="form-group">
+          <label>Color</label>
+          <div class="color-picker" id="goal-color-picker"></div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Goal</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Confirm Modal -->
     <div id="modal-confirm" class="modal modal-sm hidden">
       <div class="modal-header">
         <h2>Confirm Delete</h2>
