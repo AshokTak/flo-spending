@@ -71,8 +71,8 @@ let currentSection = 'dashboard';
 let viewPeriod   = 'current-month'; // 'current-month' | 'last-month' | 'pay-period'
 
 // ===== INIT =====
+// Called by auth.js after Firestore state is loaded.
 function init() {
-  loadState();
   autoResetRecurring();
   populateSelects();
 
@@ -88,26 +88,10 @@ function init() {
   lucide.createIcons();
 }
 
-// ===== STORAGE =====
-function loadState() {
-  try {
-    const saved = localStorage.getItem('flo_state_v2');
-    if (saved) {
-      state = JSON.parse(saved);
-      // Migrate from v1
-      if (!state.budgets) state.budgets = [];
-      if (!state.goals)   state.goals   = [];
-      if (!state.settings.payFrequency) state.settings.payFrequency = 'monthly';
-      if (state.settings.monthlyIncome !== undefined && !state.settings.incomePerPeriod) {
-        state.settings.incomePerPeriod = state.settings.monthlyIncome;
-        delete state.settings.monthlyIncome;
-      }
-    }
-  } catch(e) { console.error('Load error', e); }
-}
-
-function saveState() {
-  localStorage.setItem('flo_state_v2', JSON.stringify(state));
+// saveState() and loadState() are provided by auth.js (Firestore).
+// This stub prevents errors if auth.js hasn't loaded yet.
+if (typeof saveState === 'undefined') {
+  window.saveState = function() { console.warn('saveState called before auth loaded'); };
 }
 
 // ===== AUTO-RESET isPaid MONTHLY =====
@@ -1472,5 +1456,5 @@ function seedDemoData() {
 }
 
 // ===== START =====
-seedDemoData();
-init();
+// Startup is driven by auth.js → onAuthStateChanged → loadStateFromFirestore → init()
+// Nothing to call here.
